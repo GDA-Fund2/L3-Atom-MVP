@@ -207,8 +207,9 @@ class Ethereum(ChainFeed):
         del block['mixHash']
         del block['transactions']
         del block['uncles']
-        del block['withdrawals']
-        del block['withdrawalsRoot']
+        if block.get('withdrawals') != None:
+            del block['withdrawals']
+            del block['withdrawalsRoot']
         block['blockTimestamp'] = self.hex_to_int(block.pop('timestamp')) * 1000
         block_obj = EthereumBlock(**block, atomTimestamp=ts)
         self.last_block_hash = block_obj.hash
@@ -261,9 +262,12 @@ class Ethereum(ChainFeed):
             await self._transactions(conn, block['transactions'], timestamp)
             logs = await self.get_logs_by_block_number(self.http_node_conn, block_number)
             for log in logs:
+                if len(log.get("topics")) == 0:
+                    continue
                 topics = log['topics']
                 await self._log(conn, log.copy(), timestamp)
                 if topics[0].casefold() == TRANSFER_TOPIC:
                     await self._token_transfer(conn, log, timestamp)
         else:
             logging.warning(f"Received unknown message {msg}")
+
