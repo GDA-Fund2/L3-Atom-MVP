@@ -14,6 +14,9 @@ class Chain:
 
     def load_node_conf(self):
         secrets = get_secrets()
+        # maybe split this across multiple lines so we can easily parse it
+        # from what i can gather it compares the secrets (really environment variables), with the name of the current chain if they match they are assigned to each other or something
+        # [ 'ETH_WSS_URL' ], 'eth' if match then same
         return {k.split('_', maxsplit=1)[1].lower(): v for k, v in secrets.items() if k.startswith(self.name.upper())}
 
 

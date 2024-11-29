@@ -1,5 +1,7 @@
 from configparser import ConfigParser
 import json
+import sys
+import os
 from dotenv import dotenv_values
 
 config_path = "config.ini"
@@ -15,8 +17,10 @@ def get_kafka_config():
     }
 
 
+# TODO XXX: this is misleading AF delete or explain
 def get_ethereum_provider():
-    secrets = dotenv_values(env_path)
+    secrets = dotenv_values(env_path) | os.environ
+
     return {
         "eth_node_ws_url": secrets["ETHEREUM_NODE_WS_URL"],
         "eth_node_http_url": secrets["ETHEREUM_NODE_HTTP_URL"],
@@ -25,7 +29,9 @@ def get_ethereum_provider():
 
 
 def get_secrets():
-    return dotenv_values(env_path)
+    # NOTE(Tomas): Adding os.environ here so we can set it from helm and avoid headaches
+    return dotenv_values(env_path) | os.environ
+
 
 
 def get_redis_config():
